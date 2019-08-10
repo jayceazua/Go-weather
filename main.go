@@ -1,18 +1,22 @@
 package main
 
 import (
-	"os"
+	"bufio"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"strings"
+
 	// Third party packages
 	"github.com/caarlos0/env"
 	"github.com/joho/godotenv"
 )
+
 // Config a struct where I am able to get .env variables
 type config struct {
-    APIKey string `env:"weatherApiKey"`
+	APIKey string `env:"weatherApiKey"`
 }
 
 // Api key = 455b79f495c12591e03323c61a869ce5
@@ -21,19 +25,15 @@ func main() {
 	weatherAPIKey := getWeatherAPIKey()
 
 	// prompt user to put in their zipcode
-	// deal with .env file for apikey
-	// var string zipcode
-	apiLink := "https://samples.openweathermap.org/data/2.5/forecast/hourly?zip=94102&appid=" + weatherAPIKey
+	fmt.Println("Welcome to Weather Mood!")
+	fmt.Print("Please enter the city you are in: ")
+	city := getCity()
+	// fmt.Println(reflect.TypeOf(zipcode))
+	// https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apikey}&units=${units}
+	apiLink := "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + weatherAPIKey + "&units=Imperial"
 	response, err := http.Get(apiLink)
 
-	// display a nice print on the cli of the weather info
-	// City Name
-	// description
-	// main
-
-	// after displaying the weather ask the user
-	// how do you feel?
-
+	// display weather
 	if err != nil {
 		fmt.Print(err.Error())
 		os.Exit(1)
@@ -43,9 +43,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(string(responseData))
-}
 
+	fmt.Println(string(responseData))
+
+	// after displaying the weather ask the user
+	// how do you feel?
+
+}
 
 func getWeatherAPIKey() string {
 	if err := godotenv.Load(); err != nil {
@@ -53,8 +57,15 @@ func getWeatherAPIKey() string {
 	}
 	var cfg config
 	if err := env.Parse(&cfg); err != nil {
-			log.Fatalln("Failed to parse ENV")
+		log.Fatalln("Failed to parse ENV")
 	}
 
 	return cfg.APIKey
+}
+
+func getCity() string {
+	reader := bufio.NewReader(os.Stdin)
+	city, _ := reader.ReadString('\n')
+	city = strings.Trim(city, "\n")
+	return city
 }
