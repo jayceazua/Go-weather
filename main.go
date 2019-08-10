@@ -19,7 +19,7 @@ type config struct {
 	APIKey string `env:"weatherApiKey"`
 }
 
-// Api key = 455b79f495c12591e03323c61a869ce5
+
 func main() {
 	// Get .env file variables - can be turned into a function
 	weatherAPIKey := getWeatherAPIKey()
